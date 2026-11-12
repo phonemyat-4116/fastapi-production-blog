@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h1 class="feed-title">Posts by {{ user.username }}</h1>
+
+  {% for post in posts %}
+    <article class="post">
+      <img class="article-img"
+           src="{{ post.author.image_path }}"
+           alt="{{ post.author.username }}'s profile picture"
+           width="52"
+           height="52"
+           loading="lazy">
+      <div class="post-body">
+        <div class="article-metadata">
+          <a class="article-author"
+             href="{{ url_for('user_posts', user_id=post.author.id) }}">{{ post.author.username }}</a>
+          <small class="article-date">{{ post.date_posted.strftime("%B %d, %Y") }}</small>
+        </div>
+        <h2 class="post-heading">
+          <a class="article-title"
+             href="{{ url_for('post_page', post_id=post.id) }}">{{ post.title }}</a>
+        </h2>
+        <p class="article-content">{{ post.content }}</p>
+      </div>
+    </article>
+  {% else %}
+    <p class="feed-empty">No posts by this user yet.</p>
+  {% endfor %}
+{% endblock content %}
