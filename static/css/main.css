@@ -427,3 +427,97 @@ a {
 .error-page .feed-title {
   margin-bottom: 1rem;
 }
+
+/* ==========================================================================
+   New Post modal: form fields + primary button
+   ========================================================================== */
+
+.modal .form-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.modal .form-control {
+  color: var(--ink);
+  background-color: var(--bg);
+  border-color: var(--line);
+}
+
+.modal .form-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: color-mix(in srgb, var(--accent) 85%, #000);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--accent) 85%, #000);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: color-mix(in srgb, var(--accent) 78%, #000);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--accent) 78%, #000);
+  --bs-btn-focus-shadow-rgb: 47, 75, 255;
+}
+
+/* the dark-mode accent is a light tint, so the label flips to dark ink */
+:root[data-bs-theme="dark"] .btn-primary {
+  --bs-btn-color: #0c1018;
+  --bs-btn-hover-color: #0c1018;
+  --bs-btn-hover-bg: color-mix(in srgb, var(--accent) 85%, #fff);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--accent) 85%, #fff);
+  --bs-btn-active-color: #0c1018;
+  --bs-btn-active-bg: color-mix(in srgb, var(--accent) 78%, #fff);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--accent) 78%, #fff);
+  --bs-btn-focus-shadow-rgb: 143, 162, 255;
+}
+
+/* ==========================================================================
+   Login / Register pages
+   ========================================================================== */
+
+.auth-form {
+  max-width: 28rem;
+  margin-top: 2rem;
+}
+
+.auth-form .form-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.auth-form .form-control {
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  background-color: var(--surface);
+  border-color: var(--line);
+  border-radius: 0.6rem;
+}
+
+.auth-form .form-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.auth-form .form-text,
+.auth-form .text-danger {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+}
+
+.auth-form .form-text {
+  color: var(--muted);
+}
+
+.auth-form .btn-primary {
+  padding: 0.65rem 1.5rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.auth-switch {
+  margin-top: 1.75rem;
+  font-family: var(--font-display);
+  color: var(--muted);
+}
