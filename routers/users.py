@@ -13,8 +13,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from datetime import UTC, timedelta
 from sqlalchemy import func, select
 
-from auth import create_access_token, hash_password, oauth2_scheme, verify_access_token, verify_password
-
+from auth import create_access_token, hash_password, verify_password, CurrentUser
 from config import settings
 
 router = APIRouter()
@@ -85,45 +84,8 @@ async def login_for_access_token(
 
 
 @router.get("/me", response_model=UserPrivate)
-async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    db: DbSession
-):
-
-    """Get the currently authenticated user"""
-    user_id = verify_access_token(token)
-    if user_id is None:
-        raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail = "Invalid or expire token",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    # Validate against malformed JWT
-    try:
-        user_int_id = int(user_id)
-    except (TypeError, ValueError):
-        raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail = "Invalid or expire token",
-            header = {"WWW-Authenticate": "Bearer"},
-        )
-
-    result = await db.execute(
-        select(models.User)
-        .where(models.User.id == user_int_id)
-    )
-
-    user = result.scalars().first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    return user
+async def get_current_user(current_user: CurrentUser):
+    return current_user
 
 
 @router.get("/{user_id}", response_model=UserPublic)
@@ -142,17 +104,27 @@ async def get_user(user_id: int, db: DbSession):
         )
 
 @router.patch("/{user_id}", response_model=UserPrivate)
-async def update_user(user_id: int, user_update: UserUpdate, db: DbSession):
-    result = await db.execute(
-            select(models.User).where(models.User.id == user_id)
-        )
-    user = result.scalars().first()
+async def update_user(user_id: int, user_update: UserUpdate, current_user: CurrentUser, db: DbSession):
 
-    if not user:
+     # current user check
+    if user_id != current_user.id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {user_id} not found"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Not authorize to update this user"
         )
+
+    # result = await db.execute(
+    #         select(models.User).where(models.User.id == user_id)
+    #     )
+    # user = result.scalars().first()
+
+    # if not user:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_404_NOT_FOUND,
+    #         detail=f"User with id {user_id} not found"
+    #     )
+
+    user = current_user
 
     if user_update.username is not None and user_update.username != user.username:
         result = await db.execute(
@@ -192,18 +164,28 @@ async def update_user(user_id: int, user_update: UserUpdate, db: DbSession):
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: int, db: DbSession):
-    result = await db.execute(
-            select(models.User).where(models.User.id == user_id)
+async def delete_user(user_id: int, current_user: CurrentUser, db: DbSession):
+
+    if user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Not authorize to delete this user"
         )
-    user = result.scalars().first()
+    
+
+    # result = await db.execute(
+    #         select(models.User).where(models.User.id == user_id)
+    #     )
+    # user = result.scalars().first()
 
     
-    if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User with id {user_id} not found"
-            )
+    # if not user:
+    #         raise HTTPException(
+    #             status_code=status.HTTP_404_NOT_FOUND,
+    #             detail=f"User with id {user_id} not found"
+    #         )
+
+    user = current_user
 
     await db.delete(user)
     await db.commit()
